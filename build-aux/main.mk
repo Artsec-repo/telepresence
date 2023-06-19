@@ -324,11 +324,11 @@ format: build-deps $(tools/golangci-lint) $(tools/protolint) ## (QA) Automatical
 check-all: check-integration check-unit ## (QA) Run the test suite
 
 .PHONY: check-unit
-check-unit: build-deps ## (QA) Run the test suite
+check-unit: build-deps $(tools/test-report) ## (QA) Run the test suite
 	# We run the test suite with TELEPRESENCE_LOGIN_DOMAIN set to localhost since that value
 	# is only used for extensions. Therefore, we want to validate that our tests, and
 	# telepresence, run without requiring any outside dependencies.
-	TELEPRESENCE_MAX_LOGFILES=300 TELEPRESENCE_LOGIN_DOMAIN=127.0.0.1 CGO_ENABLED=$(CGO_ENABLED) go test -failfast -timeout=20m ./cmd/... ./pkg/...
+	TELEPRESENCE_MAX_LOGFILES=300 SCOUT_DISABLE=1 TELEPRESENCE_LOGIN_DOMAIN=127.0.0.1 CGO_ENABLED=$(CGO_ENABLED) go test -count=1 -json -failfast -timeout=20m ./cmd/... ./pkg/... | $(tools/test-report)
 
 .PHONY: check-integration
 ifeq ($(GOHOSTOS), linux)
